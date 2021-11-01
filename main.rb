@@ -43,4 +43,14 @@ def countOfPages (url) # How many pages on this page #TODO: create new method, m
                                  # rounding up
 end
 
-p countOfPages(select_url)
+def urlPage(url,page_n) # open html with select page
+  load_url("#{url}?p=#{page_n.to_s}")
+end
+
+def getLinksFromPage(url_page) # gets links from select url
+  url_page.xpath("//div[@class='product-desc display_sd']//a//@href").each do|link|
+    puts link.content
+  end
+end
+
+getLinksFromPage(urlPage(select_url,1))
