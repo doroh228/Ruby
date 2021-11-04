@@ -70,8 +70,10 @@ links = getsAllLinksOnProduts()
 total_items = 0
 
 progressbar = ProgressBar.create(title: "Grabbed", format: "%t %c/%C products: |%b>%i| %E", total: links.length)
+=begin
 column_header = ["Name","Price","Image"]
 CSV.open(csv_file, "w", :write_headers=> true, :headers => column_header) {}
+=end
 
 
 links.each do |link|
