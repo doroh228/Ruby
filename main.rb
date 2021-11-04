@@ -64,27 +64,42 @@ end
 urlCategory = ARGV[0]
 csv_file = ARGV[1]
 
+=begin
 load_url(urlCategory)
 links = getsAllLinksOnProduts()
 
 total_items = 0
+=end
+=begin
 
 progressbar = ProgressBar.create(title: "Grabbed", format: "%t %c/%C products: |%b>%i| %E", total: links.length)
+=end
 =begin
 column_header = ["Name","Price","Image"]
 CSV.open(csv_file, "w", :write_headers=> true, :headers => column_header) {}
 =end
 
 
+=begin
 links.each do |link|
   result = getDataAboutProduct(link)
   CSV.open(csv_file, "a",) do |csv|
     result.each do |p|
-      csv << [p[:title], p[:price], p[:image]]
+      res = [p[:title], :price, :image]
+      csv << res
     end
   end
   total_items += result.length
   progressbar.increment
 end
+=end
 
-puts "Grabbed #{total_items} items from #{links.length} product pages"
+CSV.open('test.csv','w',    :write_headers=> true,    :headers => ["numerator","denominator","calculation"] ) do|hdr|
+  1.upto(12){|numerator|
+    1.upto(12){ |denominator|
+      data_out = [numerator, denominator, numerator/denominator.to_f]
+      hdr << data_out
+    }
+  }end
+=begin
+puts "Grabbed #{total_items} items from #{links.length} product pages"=end
