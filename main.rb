@@ -71,30 +71,33 @@ total_items = 0
 
 progressbar = ProgressBar.create(title: "Grabbed", format: "%t %c/%C products: |%b>%i| %E", total: links.length)
 column_header = ["Name","Price","Image"]
-CSV.open(csv_file, "w", :write_headers=> true, :headers => column_header) {}
 
 
-links.each do |link|
-  result = getDataAboutProduct(link)
-  CSV.open(csv_file, "a",:write_headers=> true,    :headers => ["Name","Prise","Image"]) do |csv|
+=begin
+
+CSV.open(csv_file, "w",:write_headers=> true, :headers => column_header) do |csv|
+  links.each do |link|
+    result = getDataAboutProduct(link)
     result.each do |p|
       res = [p[:title].to_s, p[:price].to_s, p[:image].to_s]
       csv << res
     end
+    total_items += result.length
+    progressbar.increment
   end
-  total_items += result.length
-  progressbar.increment
 end
+=end
 
-=begin
 CSV.open('test.csv','w',    :write_headers=> true,    :headers => ["numerator","denominator","calculation"] ) do|hdr|
-  1.upto(12){|numerator|
-    1.upto(12){ |denominator|
-      data_out = [numerator, denominator, numerator/denominator.to_f]
+  links.each{|link|
+    result = getDataAboutProduct(link)
+    result.each { |p|
+      data_out = [p[:title].to_s, p[:price].to_s, p[:image].to_s]
       hdr << data_out
     }
+    total_items += result.length
+    progressbar.increment
   }end
-=end
 
 
 puts "Grabbed #{total_items} items from #{links.length} product pages"
