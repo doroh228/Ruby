@@ -8,39 +8,63 @@ require 'ruby-progressbar'
 $select_url =""
 
 def load_url(url)
-  $select_url = url
-  return Nokogiri::HTML(Curl.get(url).body_str)
+  http = Curl.get(url) do |curl|
+    curl.ssl_verify_peer=false
+    curl.ssl_verify_host=0
+  end
+  Nokogiri::HTML(http.body_str)
 end
-def loadUrlWithPage(url) # Get HTML code
+
+def load_selected_url(url)
+  $select_url = load_url(url)
+end
+
+def loadUrlWithPage(url)
+  # Get HTML code
   return Nokogiri::HTML(URI.open(url))
 end
-def countOfPages (url) # How many pages
-  countOfProducts = load_url(url).xpath("//input[@id = 'nb_item_bottom']/@value").text.to_i
-  return (countOfProducts/25.00).ceil
+
+def countOfPages ()
+  # How many pages
+  countOfProducts = $select_url.xpath("//input[@id = 'nb_item_bottom']/@value").text.to_i
+  res =(countOfProducts/25.00).ceil
+  if (res>0)
+    return res
+  else
+    return 1
+  end
 end
 
-def urlPage(url,page_n) # open html with select page
-  loadUrlWithPage("#{url}?p=#{page_n.to_s}")
+def urlPage(url,page_n)
+  # open html with select page
+  if page_n == 1
+    return load_url(url)
+  else
+    return load_url(url + "?p=" + page_n.to_s)
+  end
 end
 
-def getLinksFromPage(url_page) # gets links from select url
+def getLinksFromPage(url_page)
+  # gets links from select url
   links = []
   url_page.xpath("//div[@class='product-desc display_sd']//a//@href").each do|link|
     links << link.content
   end
   return links
 end
-def getsAllLinksOnProduts() # Get all links on products
+
+def getsAllLinksOnProduts(url)
+  # Get all links on products
   links =[]
-  for i in (1..countOfPages($select_url))
-    url_selectPage = urlPage($select_url,i)
+  for i in (1..countOfPages())
+    url_selectPage = urlPage(url,i)
     links+=getLinksFromPage(url_selectPage)
   end
   return links
 end
 
 def getDataAboutProduct(url)
-  htmlSelectPtoduct = loadUrlWithPage(url)
+  htmlSelectPtoduct = load_url(url)
   title = htmlSelectPtoduct.xpath("//div[@class='nombre_fabricante_bloque col-md-12 desktop']//h1").text.to_s.strip
   image = htmlSelectPtoduct.xpath("//div[@id='image-block']//img//@src").map { |p| p.text }
   criteria = htmlSelectPtoduct.xpath("//ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='radio_label']").map { |p| p.text }
@@ -64,8 +88,8 @@ end
 urlCategory = ARGV[0]
 csv_file = ARGV[1]
 
-load_url(urlCategory)
-links = getsAllLinksOnProduts()
+load_selected_url(urlCategory)
+links = getsAllLinksOnProduts(urlCategory)
 
 total_items = 0
 
