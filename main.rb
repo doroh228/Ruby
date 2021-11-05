@@ -37,11 +37,7 @@ end
 
 def urlPage(url,page_n)
   # open html with select page
-  if page_n == 1
-    return load_url(url)
-  else
-    return load_url(url + "?p=" + page_n.to_s)
-  end
+  return loadUrlWithPage(url + "?p=" + page_n.to_s)
 end
 
 def getLinksFromPage(url_page)
@@ -64,7 +60,7 @@ def getsAllLinksOnProduts(url)
 end
 
 def getDataAboutProduct(url)
-  htmlSelectPtoduct = load_url(url)
+  htmlSelectPtoduct = loadUrlWithPage(url)
   title = htmlSelectPtoduct.xpath("//div[@class='nombre_fabricante_bloque col-md-12 desktop']//h1").text.to_s.strip
   image = htmlSelectPtoduct.xpath("//div[@id='image-block']//img//@src").map { |p| p.text }
   criteria = htmlSelectPtoduct.xpath("//ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='radio_label']").map { |p| p.text }
