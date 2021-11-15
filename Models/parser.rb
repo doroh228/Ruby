@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'csv'
 require 'ruby-progressbar'
 require_relative '../Modules/parser_container'
+require_relative 'product'
 
 
 class Parser
@@ -20,16 +21,20 @@ class Parser
 
     CSV.open(name_Csv_File, "w", :write_headers=> true, :headers => ["Name","Price","Image"]) {}
 
+    threads = []
     links.each do |link|
-      result = getDataAboutProduct(link)
-      CSV.open(name_Csv_File, "a",) do |csv|
-        result.each do |p|
-          csv << [p[:title], p[:price], p[:image]]
+      threads << Thread.new do
+        result = getDataAboutProduct(link)
+        CSV.open(name_Csv_File, "a",) do |csv|
+          result.each do |p|
+            csv << [p[:title], p[:price], p[:image]]
+          end
         end
+        total_items += result.length
+        progressbar.increment
       end
-      total_items += result.length
-      progressbar.increment
     end
+    threads.map(&:join)
     puts "Grabbed #{total_items} items from #{links.length} product pages"
   end
 end

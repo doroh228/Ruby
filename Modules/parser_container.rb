@@ -2,6 +2,7 @@ require 'curb'
 require 'nokogiri'
 require 'csv'
 require 'ruby-progressbar'
+require_relative '../Models/product'
 
 module ParserContainer
 
