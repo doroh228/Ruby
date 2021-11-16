@@ -65,11 +65,8 @@ module ParserContainer
     prices = htmlSelectPtoduct.xpath("//ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='price_comb']").map { |p| p.text.to_s.delete("€").strip }
     products = []
     (0...criteria.length).each do |i|
-      products.push({
-                      title: criteria[i].nil? ? title : title + ' - ' + criteria[i],
-                      price: prices[i],
-                      image: image[0],
-                    })
+      some_product = Product.new(criteria[i].nil? ? title : title + ' - ' + criteria[i], prices[i],image[0])
+      products << some_product
     end
     return products
   end

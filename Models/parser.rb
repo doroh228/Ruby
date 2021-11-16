@@ -27,7 +27,7 @@ class Parser
         result = getDataAboutProduct(link)
         CSV.open(name_Csv_File, "a",) do |csv|
           result.each do |p|
-            csv << [p[:title], p[:price], p[:image]]
+            csv << [p.name, p.price, p.image]
           end
         end
         total_items += result.length
