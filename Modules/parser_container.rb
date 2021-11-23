@@ -71,8 +71,7 @@ module ParserContainer
     prices = htmlSelectPtoduct.xpath(@params['xpath']['product_price']).map { |p| p.text.to_s.delete("€").strip }
     products = []
     (0...criteria.length).each do |i|
-      some_product = Product.new(criteria[i].nil? ? title : title + ' - ' + criteria[i], prices[i],image[0])
-      products << some_product
+      products << Product.new(criteria[i].nil? ? title : title + ' - ' + criteria[i], prices[i],image[0])
     end
     return products
   end
@@ -82,14 +81,20 @@ module ParserContainer
     allLinks.each do |link|
       threads << Thread.new do
         result = getDataAboutProduct(link)
-        CSV.open(name_Csv_File, "a",) { |csv|
-          result.each { |p| csv << [p.name, p.price, p.image] }
-        }
+        WriteInCsvFile(result,name_Csv_File)
         @total_items += result.length
         @progressbar.increment
       end
     end
     return threads
+  end
+
+  def WriteInCsvFile(infoAboutProduct, nameFile)
+    CSV.open(nameFile, "a",) { |csv|
+      infoAboutProduct.each { |p|
+        csv << [p.name, p.price, p.image]
+      }
+    }
   end
 
 end
