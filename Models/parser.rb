@@ -12,11 +12,11 @@ class Parser
 
   def initialize (url)
     load_yaml_params
+    @total_items = 0
     @main_html = load_url(url)
   end
 
   def ResultOutput(url_Category, name_Csv_File)
-    @total_items = 0
     links = getAllLinksOnProducts(url_Category)
     @progressbar = ProgressBar.create(title: "Grabbed", format: "%t %c/%C products: |%b>%i| %E", total: links.length)
     CSV.open(name_Csv_File, "w", :write_headers=> true, :headers => ["Name","Price","Image"]) {}
