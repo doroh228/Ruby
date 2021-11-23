@@ -1,2 +1,10 @@
 category: https://www.petsonic.com/comida-humeda-para-perros/
 file: myFile.csv
+xpath:
+  product_url:      //div[@class='product-desc display_sd']//a//@href
+  product_title:    //div[@class='nombre_fabricante_bloque col-md-12 desktop']//h1
+  product_img:      //div[@id='image-block']//img//@src
+  product_criteria: //ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='radio_label']
+  product_price:    //ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='price_comb']
+  count_products:   //input[@id = 'nb_item_bottom']/@value
+products_on_page: 25

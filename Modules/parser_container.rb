@@ -3,10 +3,16 @@ require 'nokogiri'
 require 'csv'
 require 'ruby-progressbar'
 require_relative '../Models/product'
+require 'yaml'
 
 module ParserContainer
 
   private
+
+  def load_yaml_params
+    @params = YAML.load_file('params.yml')
+  end
+
   def load_url(url)
     http = Curl.get(url) do |curl|
       curl.ssl_verify_peer=false
@@ -17,8 +23,8 @@ module ParserContainer
 
   def countOfPages ()
     # How many pages
-    countOfProducts = @main_html.xpath("//input[@id = 'nb_item_bottom']/@value").text.to_i
-    res =(countOfProducts/25.00).ceil
+    countOfProducts = @main_html.xpath(@params['xpath']['count_products']).text.to_i
+    res =(countOfProducts/@params['products_on_page'].to_f).ceil
     if (res>0)
       return res
     else
@@ -38,7 +44,7 @@ module ParserContainer
   def getLinksFromPage(html_page)
     # gets links from select url
     links = []
-    html_page.xpath("//div[@class='product-desc display_sd']//a//@href").each do|link|
+    html_page.xpath(@params['xpath']['product_url']).each do|link|
       links << link.content
     end
     return links
@@ -59,10 +65,10 @@ module ParserContainer
 
   def getDataAboutProduct(url)
     htmlSelectPtoduct = load_url(url)
-    title = htmlSelectPtoduct.xpath("//div[@class='nombre_fabricante_bloque col-md-12 desktop']//h1").text.to_s.strip
-    image = htmlSelectPtoduct.xpath("//div[@id='image-block']//img//@src").map { |p| p.text }
-    criteria = htmlSelectPtoduct.xpath("//ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='radio_label']").map { |p| p.text }
-    prices = htmlSelectPtoduct.xpath("//ul[@class='attribute_radio_list pundaline-variations']//li//span[@class='price_comb']").map { |p| p.text.to_s.delete("€").strip }
+    title = htmlSelectPtoduct.xpath(@params['xpath']['product_title']).text.to_s.strip
+    image = htmlSelectPtoduct.xpath(@params['xpath']['product_img']).map { |p| p.text }
+    criteria = htmlSelectPtoduct.xpath(@params['xpath']['product_criteria']).map { |p| p.text }
+    prices = htmlSelectPtoduct.xpath(@params['xpath']['product_price']).map { |p| p.text.to_s.delete("€").strip }
     products = []
     (0...criteria.length).each do |i|
       some_product = Product.new(criteria[i].nil? ? title : title + ' - ' + criteria[i], prices[i],image[0])
@@ -70,4 +76,20 @@ module ParserContainer
     end
     return products
   end
+
+  def GetAllThreadsForWritingToFile(allLinks, name_Csv_File)
+    threads = []
+    allLinks.each do |link|
+      threads << Thread.new do
+        result = getDataAboutProduct(link)
+        CSV.open(name_Csv_File, "a",) { |csv|
+          result.each { |p| csv << [p.name, p.price, p.image] }
+        }
+        @total_items += result.length
+        @progressbar.increment
+      end
+    end
+    return threads
+  end
+
 end
