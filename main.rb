@@ -4,8 +4,8 @@ require 'csv'
 require 'ruby-progressbar'
 require_relative 'Modules/parser_container'
 require_relative 'Models/parser'
+require_relative 'Models/product'
 require 'yaml'
-
 
 params = YAML.load_file('params.yml')
 

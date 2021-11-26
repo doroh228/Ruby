@@ -64,6 +64,7 @@ module ParserContainer
   end
 
   def getDataAboutProduct(url)
+    # collect information about product from single page
     htmlSelectPtoduct = load_url(url)
     title = htmlSelectPtoduct.xpath(@params['xpath']['product_title']).text.to_s.strip
     image = htmlSelectPtoduct.xpath(@params['xpath']['product_img']).map { |p| p.text }
@@ -76,25 +77,18 @@ module ParserContainer
     return products
   end
 
-  def GetAllThreadsForWritingToFile(allLinks, name_Csv_File)
+  def get_thrds_on_prod(allLinks, name_Csv_File)
+    #get all threads on our products
     threads = []
     allLinks.each do |link|
       threads << Thread.new do
         result = getDataAboutProduct(link)
-        WriteInCsvFile(result,name_Csv_File)
+        result.each { |product|   product.save(name_Csv_File)}
         @total_items += result.length
         @progressbar.increment
       end
     end
     return threads
-  end
-
-  def WriteInCsvFile(infoAboutProduct, nameFile)
-    CSV.open(nameFile, "a",) { |csv|
-      infoAboutProduct.each { |p|
-        csv << [p.name, p.price, p.image]
-      }
-    }
   end
 
 end

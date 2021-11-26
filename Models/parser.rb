@@ -20,7 +20,7 @@ class Parser
     links = getAllLinksOnProducts(url_Category)
     @progressbar = ProgressBar.create(title: "Grabbed", format: "%t %c/%C products: |%b>%i| %E", total: links.length)
     CSV.open(name_Csv_File, "w", :write_headers=> true, :headers => ["Name","Price","Image"]) {}
-    threads = GetAllThreadsForWritingToFile(links, name_Csv_File)
+    threads = get_thrds_on_prod(links, name_Csv_File)
     threads.map(&:join)
     puts "Grabbed #{total_items} items from #{links.length} product pages"
   end
